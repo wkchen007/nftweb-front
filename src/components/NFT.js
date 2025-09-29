@@ -1,27 +1,21 @@
 import { useEffect, useState } from "react";
+import { getTokensOfOwner } from "./api";
 
 const NFT = () => {
-  const [tokens, setTokens] = useState([]);
+  const [DATokens, setDATokens] = useState([]);
   const [loading, setLoading] = useState(true);
   const [txLoading, setTxLoading] = useState(false);
   const [amount, setAmount] = useState("0");
   const [error, setError] = useState("");
 
   useEffect(() => {
-    const fetchTokens = async () => {
+    const fetchDATokens = async () => {
       try {
-        const response = await fetch("/nft/tokensOfOwner", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            owner: process.env.REACT_APP_Address,
-            IncludeTokenURI: true,
-          }),
-        });
-        const data = await response.json();
-        setTokens(data.tokens || []);
+        const _DATokens = await getTokensOfOwner(
+          process.env.REACT_APP_Address,
+          true
+        );
+        setDATokens(_DATokens);
       } catch (error) {
         console.error("Error:", error);
       } finally {
@@ -29,13 +23,14 @@ const NFT = () => {
       }
     };
 
-    fetchTokens();
+    fetchDATokens();
   }, []);
 
   const handleSend = async (e) => {
     e.preventDefault();
     setError("");
     setTxLoading(true);
+
     if (isNaN(amount) || Number(amount) <= 0) {
       setError("請輸入有效的抽獎次數");
       setTxLoading(false);
@@ -45,20 +40,44 @@ const NFT = () => {
     try {
       const response = await fetch("/nft/mint", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          amount,
-        }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ amount }),
       });
       const data = await response.json();
+
       if (data.error) {
         setError(data.message || "交易失敗");
+        return;
       }
-      console.log("data:", data);
+
+      let tries = 0;
+      const maxTries = 10;
+      const prevLen = DATokens.length;
+
+      const pollDATokens = async () => {
+        try {
+          const _DATokens = await getTokensOfOwner(
+            process.env.REACT_APP_Address,
+            true
+          );
+
+          // 如果有新 token 或已經達到最大嘗試次數就停止
+          if (_DATokens.length > prevLen || tries >= maxTries) {
+            setDATokens(_DATokens);
+            return;
+          }
+
+          tries++;
+          setTimeout(pollDATokens, 2000); // 每 2 秒查一次
+        } catch (err) {
+          console.error("Polling error:", err);
+        }
+      };
+
+      pollDATokens();
     } catch (error) {
       console.error("Error:", error);
+      setError("發送交易時發生錯誤");
     } finally {
       setTxLoading(false);
     }
@@ -93,11 +112,11 @@ const NFT = () => {
       <hr />
       {loading ? (
         <p>初始化中...</p>
-      ) : tokens.length === 0 ? (
+      ) : DATokens.length === 0 ? (
         <p>沒有找到任何 NFT</p>
       ) : (
         <div className="row">
-          {tokens.map((token) => (
+          {DATokens.map((token) => (
             <div key={token.tokenId} className="col-2 mb-4">
               <div className="card h-100">
                 <img
