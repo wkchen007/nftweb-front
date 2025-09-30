@@ -1,9 +1,9 @@
 // 取得使用者的 NFT
-export async function getTokensOfOwner(owner, includeTokenURI = true) {
+export async function getTokensOfOwner(includeTokenURI = true) {
   const response = await fetch(`/nft/tokensOfOwner`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ owner, IncludeTokenURI: includeTokenURI }),
+    body: JSON.stringify({ IncludeTokenURI: includeTokenURI }),
   });
 
   if (!response.ok) {

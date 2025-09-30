@@ -56,10 +56,7 @@ const NFT = () => {
 
       const pollDATokens = async () => {
         try {
-          const _DATokens = await getTokensOfOwner(
-            process.env.REACT_APP_Address,
-            true
-          );
+          const _DATokens = await getTokensOfOwner(true);
 
           // 如果有新 token 或已經達到最大嘗試次數就停止
           if (_DATokens.length > prevLen || tries >= maxTries) {
