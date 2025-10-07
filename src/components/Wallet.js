@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate, useOutletContext } from "react-router-dom";
 import { getWalletAddress, getWalletBalance, postWalletSend } from "./api";
 
 const Wallet = () => {
@@ -10,20 +11,27 @@ const Wallet = () => {
   const [txHash, setTxHash] = useState(null);
   const [txLink, setTxLink] = useState(null);
   const [error, setError] = useState("");
+  const { jwtToken } = useOutletContext();
+  const navigate = useNavigate();
 
   // 初始化 provider & signer（只跑一次）
   useEffect(() => {
+    if (jwtToken === "") {
+      navigate("/login");
+      return;
+    }
+
     (async () => {
       try {
-        const { address } = await getWalletAddress();
+        const { address } = await getWalletAddress(jwtToken);
         setAddress(address);
-        const { balanceEth } = await getWalletBalance();
+        const { balanceEth } = await getWalletBalance(jwtToken);
         setBalanceEth(balanceEth);
       } catch (e) {
         setError(String(e.message || e));
       }
     })();
-  }, []);
+  }, [jwtToken, navigate]);
 
   const handleSend = async (e) => {
     e.preventDefault();
@@ -45,17 +53,18 @@ const Wallet = () => {
       const { txHash, explorerUrl } = await postWalletSend({
         to,
         amountEth: amount,
+        jwtToken,
       });
       setTxHash(txHash);
       setTxLink(explorerUrl);
 
       // 重新取餘額
-      const { address } = await getWalletAddress();
+      const { address } = await getWalletAddress(jwtToken);
       setAddress(address);
       let tries = 0;
       const maxTries = 10;
       const pollBalance = async () => {
-        const { balanceEth: newBalance } = await getWalletBalance();
+        const { balanceEth: newBalance } = await getWalletBalance(jwtToken);
         if (newBalance !== balanceEth || tries >= maxTries) {
           // console.log("tries:", tries);
           setBalanceEth(newBalance);
