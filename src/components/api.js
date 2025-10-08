@@ -15,7 +15,7 @@ export async function getTokensOfOwner(includeTokenURI = true) {
 }
 
 // 建立 fetch 的 request options
-export function createRequestOptions({ method = "GET", jwtToken, body } = {}) {
+export function createRequestOptions({ method = "POST", jwtToken, body } = {}) {
   const headers = new Headers();
   headers.append("Content-Type", "application/json");
   if (jwtToken) {

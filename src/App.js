@@ -8,8 +8,13 @@ function App() {
   const navigate = useNavigate();
 
   const logOut = () => {
+    const headers = new Headers();
+    headers.append("Content-Type", "application/json");
+    headers.append("Authorization", "Bearer " + jwtToken);
+
     const requestOptions = {
-      method: "GET",
+      method: "POST",
+      headers: headers,
       credentials: "include",
     };
 
