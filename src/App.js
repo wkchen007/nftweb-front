@@ -50,7 +50,7 @@ function App() {
       </div>
 
       <div className="row">
-        <div className="col-md-2">
+        <div className="col-md-3">
           <nav>
             <div className="list-group">
               <Link to="/" className="list-group-item list-group-item-action">
@@ -81,7 +81,7 @@ function App() {
             </div>
           </nav>
         </div>
-        <div className="col-md-10">
+        <div className="col-md-9">
           <Alert message={alertMessage} className={alertClassName} />
           <Outlet
             context={{
