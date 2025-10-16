@@ -16,27 +16,18 @@ const router = createBrowserRouter([
     errorElement: <ErrorPage />,
     children: [
       { index: true, element: <Home /> },
-      {
-        path: "/demo",
-        element: <Demo />,
-      },
-      {
-        path: "/nft",
-        element: <NFT />,
-      },
-      {
-        path: "/wallet",
-        element: <Wallet />,
-      },
-      {
-        path: "/login",
-        element: <Login />,
-      },
+      { path: "/demo", element: <Demo /> },
+      { path: "/nft", element: <NFT /> },
+      { path: "/wallet", element: <Wallet /> },
+      { path: "/login", element: <Login /> },
     ],
   },
 ]);
 
-const root = ReactDOM.createRoot(document.getElementById("root"));
+const root = ReactDOM.createRoot(
+  document.getElementById("root") as HTMLElement
+);
+
 root.render(
   <React.StrictMode>
     <RouterProvider router={router} />

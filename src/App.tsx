@@ -1,33 +1,44 @@
-import { useEffect, useState } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { Link, Outlet, useNavigate } from "react-router-dom";
 import Alert from "./components/Alert";
+
+// 讓子頁面用 useOutletContext<AppOutletContext>() 取得型別
+export type AppOutletContext = {
+  jwtToken: string;
+  setJwtToken: React.Dispatch<React.SetStateAction<string>>;
+  setAlertClassName: React.Dispatch<React.SetStateAction<string>>;
+  setAlertMessage: React.Dispatch<React.SetStateAction<string>>;
+};
+
 function App() {
-  const [alertClassName, setAlertClassName] = useState("d-none");
-  const [alertMessage, setAlertMessage] = useState("");
-  const [jwtToken, setJwtToken] = useState("");
+  const [alertClassName, setAlertClassName] = useState<string>("d-none");
+  const [alertMessage, setAlertMessage] = useState<string>("");
+  const [jwtToken, setJwtToken] = useState<string>("");
+
   const navigate = useNavigate();
 
-  const logOut = () => {
+  const requestOptions = useMemo<RequestInit>(() => {
     const headers = new Headers();
     headers.append("Content-Type", "application/json");
-    headers.append("Authorization", "Bearer " + jwtToken);
-
-    const requestOptions = {
+    // 沒 token 時不加 Authorization
+    if (jwtToken) headers.append("Authorization", "Bearer " + jwtToken);
+    return {
       method: "POST",
-      headers: headers,
+      headers,
       credentials: "include",
     };
+  }, [jwtToken]);
 
+  const logOut = useCallback(() => {
     fetch(`/logout`, requestOptions)
       .catch((error) => {
         console.log("error logging out", error);
       })
       .finally(() => {
         setJwtToken("");
+        navigate("/login");
       });
-
-    navigate("/login");
-  };
+  }, [navigate, requestOptions]);
 
   return (
     <div className="container">
@@ -41,12 +52,18 @@ function App() {
               <span className="badge bg-success">Login</span>
             </Link>
           ) : (
-            <a href="#!" onClick={logOut}>
+            <a
+              href="#!"
+              onClick={(e) => {
+                e.preventDefault();
+                logOut();
+              }}
+            >
               <span className="badge bg-danger">Logout</span>
             </a>
           )}
         </div>
-        <hr className="mb-3"></hr>
+        <hr className="mb-3" />
       </div>
 
       <div className="row">
@@ -81,15 +98,18 @@ function App() {
             </div>
           </nav>
         </div>
+
         <div className="col-md-9">
           <Alert message={alertMessage} className={alertClassName} />
           <Outlet
-            context={{
-              jwtToken,
-              setJwtToken,
-              setAlertClassName,
-              setAlertMessage,
-            }}
+            context={
+              {
+                jwtToken,
+                setJwtToken,
+                setAlertClassName,
+                setAlertMessage,
+              } satisfies AppOutletContext
+            }
           />
         </div>
       </div>
