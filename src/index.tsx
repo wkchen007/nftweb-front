@@ -2,6 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import App from "./App";
+import { Providers } from "./providers";
 import ErrorPage from "./components/ErrorPage";
 import Home from "./components/Home";
 import Demo from "./components/Demo";
@@ -30,6 +31,8 @@ const root = ReactDOM.createRoot(
 
 root.render(
   <React.StrictMode>
-    <RouterProvider router={router} />
+    <Providers>
+      <RouterProvider router={router} />
+    </Providers>
   </React.StrictMode>
 );
