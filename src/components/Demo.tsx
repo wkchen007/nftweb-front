@@ -25,7 +25,7 @@ const Demo: React.FC = () => {
     fetchNFTs();
   }, []);
 
-  const ipfsBase = process.env.REACT_APP_IPFS ?? ""; // 例如 https://...mypinata.cloud
+  const ipfsBase = import.meta.env.VITE_IPFS ?? ""; // 例如 https://...mypinata.cloud
 
   return (
     <div>

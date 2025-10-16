@@ -13,7 +13,7 @@ const NFT: React.FC = () => {
   const [amount, setAmount] = useState<string>("0");
   const [error, setError] = useState<string>("");
 
-  const ipfsBase = process.env.REACT_APP_IPFS ?? "";
+  const ipfsBase = import.meta.env.VITE_IPFS ?? "";
 
   useEffect(() => {
     const fetchDATokens = async () => {
